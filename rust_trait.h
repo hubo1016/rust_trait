@@ -265,7 +265,9 @@ namespace trait {
         }
 
         template<class Trait, class Base, class Deleter>
-        TraitUPtr<Trait> own(std::unique_ptr<Base, Deleter> &&value) {
+        std::enable_if_t<(is_trait_h<Base, Trait>::value ||
+                          !is_trait_h<std::unique_ptr<Base, Deleter>, Trait>::value),
+                          TraitUPtr<Trait>> own(std::unique_ptr<Base, Deleter> &&value) {
             static_assert(is_trait<Base, Trait>, "trait not implemented for this type");
             using UPtr=TraitUPtrUPtr<Trait, Base, Deleter>;
             return TraitUPtr<Trait>{UPtr::make(std::move(value)), UPtr::deleter};
