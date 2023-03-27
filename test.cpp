@@ -56,6 +56,26 @@ IMPL_TRAIT_FOR_CLASS(TraitA, int) {
     }
 };
 
+IMPL_TRAIT_FOR_CLASS(TraitA, std::unique_ptr<int>) {
+    TRAIT_FOR_CLASS_SELF;
+    void test() override {
+        std::cout<<"test for unique ptr int"<<std::endl;
+    }
+    void test2(int a) override {
+        std::cout<<"testint for unique ptr int "<<a<<std::endl;
+    }
+};
+
+IMPL_TRAIT_FOR_CLASS(TraitA, std::unique_ptr<float>) {
+    TRAIT_FOR_CLASS_SELF;
+    void test() override {
+        std::cout<<"test for unique ptr float"<<std::endl;
+    }
+    void test2(int a) override {
+        std::cout<<"testint for unique ptr float "<<a<<std::endl;
+    }
+};
+
 struct TraitB {
     virtual void test3() = 0;
 };
@@ -264,6 +284,23 @@ int main() {
         ta2->test2(2);
     }
     auto ta2 = trait::own<TraitA>(testa::Test());
+    ta2->test();
+    ta2->test2(2);
+    ta2.reset();
+    ta2 = trait::own<TraitA>(std::make_unique<testa::Test>());
+    ta2->test();
+    ta2->test2(2);
+    ta2.reset();
+    std::cout<<"test unique_ptr"<<std::endl;
+    ta2 = trait::own<TraitA>(std::make_unique<int>(1));
+    ta2->test();
+    ta2->test2(2);
+    ta2.reset();
+    ta2 = trait::make<TraitA, std::unique_ptr<int>>(new int(1));
+    ta2->test();
+    ta2->test2(2);
+    ta2.reset();
+    ta2 = trait::own<TraitA>(std::make_unique<float>(1.0f));
     ta2->test();
     ta2->test2(2);
     ta2.reset();
