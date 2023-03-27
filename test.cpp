@@ -46,6 +46,16 @@ IMPL_TRAIT_FOR_CLASS(TraitA, testa::Test) {
     }
 };
 
+IMPL_TRAIT_FOR_CLASS(TraitA, int) {
+    TRAIT_FOR_CLASS_SELF;
+    void test() override {
+        std::cout<<"test for int"<<std::endl;
+    }
+    void test2(int a) override {
+        std::cout<<"testint for int "<<a<<std::endl;
+    }
+};
+
 struct TraitB {
     virtual void test3() = 0;
 };
@@ -239,6 +249,7 @@ int main() {
     (t->*(&TraitA::test))();
     (t->*(&TraitA::test2))(1);
     (t->*(&TraitB::test3))();
+    trait::to_trait<TraitA>(1).test();
     {
         trait::TraitRef<TraitA> ta(t);
         ta->test();
@@ -248,6 +259,9 @@ int main() {
         trait::to_trait<TraitB>(ta).test3();
         trait::TraitRef<TraitB> tb = ta;
         tb->test3();
+        trait::TraitRef<TraitA> ta2 = 2;
+        ta2->test();
+        ta2->test2(2);
     }
     auto ta2 = trait::own<TraitA>(testa::Test());
     ta2->test();
@@ -290,7 +304,6 @@ int main() {
     std::cout<<trait::is_trait<ZFCIntGen<13>::IntType, Odd><<std::endl;
     std::cout<<trait::is_trait<ZFCIntGen<14>::IntType, Even><<std::endl;
     std::cout<<trait::to_trait<Number>(ZFCIntGen<12>::IntType()).add(ZFCIntGen<11>::IntType())<<std::endl;
-    return 0;
     std::cout<<"prim"<<std::endl;
     std::cout<<trait::is_trait<Integer<2>, Prim><<std::endl;
     std::cout<<trait::is_trait<Integer<3>, Prim><<std::endl;
