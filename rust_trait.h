@@ -292,7 +292,7 @@ namespace trait {
 template<typename Base, typename Trait, typename R, typename ...Args,
          typename __assert=trait::trait_assert<Base, Trait>>
 auto operator->*(Base &&base, R (Trait::*ptr)(Args...)) {
-    return [&base, ptr](Args &&...args) {
+    return [&base, ptr](Args &&...args)->decltype(auto) {
         return (trait::to_trait<Trait>(std::forward<Base>(base)).*ptr)(std::forward<Args>(args)...);
     };
 }
