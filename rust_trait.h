@@ -72,16 +72,36 @@ namespace trait {
             explicit __TraitImplBase(__Self &&self_) noexcept : self(self_) {}
         };
 
+        template<class __Self, class __Trait, class __Result>
+        struct __TraitImplConceptResult {
+            using Self = __Self;
+            using Trait = __Trait;
+            using Result = __Result;
+        };
+
+        template<class TraitImpl>
+        void __trait_impl_concept_test(...);
+
+        template<class TraitImpl,
+                 class __Self=typename std::remove_reference<decltype(((TraitImpl*)(nullptr))->self)>::type,
+                 class __Trait=typename TraitImpl::Trait>
+        __TraitImplConceptResult<
+            __Self,
+            __Trait,
+            std::enable_if_t<(std::is_base_of<__TraitImplBase<__Trait, __Self>, TraitImpl>::value &&
+                              std::is_same<typename is_trait_h<__Self, __Trait>::TraitImpl, TraitImpl>::value)>
+        > __trait_impl_concept_test(void*);
+
+        template<class TraitImpl>
+        using __TraitImplConcept = decltype(__trait_impl_concept_test<TraitImpl>(nullptr));
+
         template<class Base>
         struct __TraitCastHelper {
             template<class TraitImpl_,
-                     class TraitImpl=typename std::remove_reference<TraitImpl_>::type>
-            typename std::remove_reference<decltype(((TraitImpl*)(nullptr))->self)>::type &operator()(TraitImpl_ &&trait) {
-                using __Self=typename std::remove_reference<decltype(((TraitImpl*)(nullptr))->self)>::type;
-                static_assert(std::is_same<Base, __Self>::value, "type mismatch");
-                using __Trait=typename TraitImpl::Trait;
-                static_assert(std::is_base_of<__TraitImplBase<__Trait, __Self>, TraitImpl>::value,
-                              "invalid trait implementation");
+                     class TraitImpl=typename std::remove_reference<TraitImpl_>::type,
+                     class TraitImplConcept=__TraitImplConcept<TraitImpl>>
+            typename TraitImplConcept::Self &operator()(TraitImpl_ &&trait) {
+                static_assert(std::is_same<Base, typename TraitImplConcept::Self>::value, "type mismatch");
                 return trait.self;
             }
 
@@ -350,9 +370,9 @@ struct __TraitImpl<TraitCls, BaseCls, ::trait::__impl::__is_trait_h_conj<__VA_AR
 #define TRAIT_BOUND(Trait, ...) trait::is_trait_h<Trait, __VA_ARGS__>
 
 
-template<class Trait, class Base, class Trait2>
-std::enable_if_t<std::is_base_of<Trait2, Trait>::value, __TraitImpl<Trait, Base>>
-    __trait_impl(::trait::__impl::__TraitTypeCheck<Trait2>, __TraitImpl<Trait, Base>*);
+template<class Trait, class TraitImpl>
+std::enable_if_t<std::is_base_of<Trait, typename trait::__impl::__TraitImplConcept<TraitImpl>::Trait>::value, TraitImpl>
+    __trait_impl(::trait::__impl::__TraitTypeCheck<Trait>, TraitImpl*);
 
 
 template<class Trait, class Trait2>
