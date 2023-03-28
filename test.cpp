@@ -265,6 +265,15 @@ int main() {
     std::cout<<trait::is_trait<testa::Test, TraitB><<std::endl;
     std::cout<<trait::is_trait<testa::Test, TraitA><<std::endl;
     std::cout<<trait::is_trait<testa::Test, TraitB, TraitA><<std::endl;
+    std::cout<<trait::is_trait<testa::Test2, TraitB><<std::endl;
+    std::cout<<trait::is_trait<testa::Test2, TraitA><<std::endl;
+    std::cout<<trait::is_trait<testa::Test2, TraitB, TraitA><<std::endl;
+    std::cout<<trait::is_trait<trait::TraitRef<TraitA>, TraitA><<std::endl;
+    std::cout<<trait::is_trait<trait::TraitRef<TraitA>, TraitB><<std::endl;
+    std::cout<<trait::is_trait<trait::TraitUPtr<TraitA>, TraitA><<std::endl;
+    std::cout<<trait::is_trait<trait::TraitUPtr<TraitA>, TraitB><<std::endl;
+    std::cout<<trait::is_trait<trait::is_trait_h<testa::Test, TraitA>::TraitImpl, TraitA><<std::endl;
+    std::cout<<trait::is_trait<trait::is_trait_h<testa::Test, TraitA>::TraitImpl, TraitB><<std::endl;
     auto t = testa::Test();
     (t->*(&TraitA::test))();
     (t->*(&TraitA::test2))(1);
